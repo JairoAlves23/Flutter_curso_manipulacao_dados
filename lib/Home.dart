@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -6,13 +7,34 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  
+  String _textoSalvo = "Nada Salvo";
   TextEditingController _controllerCampo = TextEditingController();
-
-  _salvar() {
+  
+  _salvar() async {
+    
+    String valorDigitado = _controllerCampo.text;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString("nome", valorDigitado);
+    print("Operação (salvar):$valorDigitado"); 
+    
     
   }
 
-  _recuperarDados() {
+  _recuperarDados() async {
+
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _textoSalvo = prefs.getString("nome") ?? ("Sem valor");
+    });
+    print("Operação (recuperação):$_textoSalvo"); 
+  }
+
+  _remover() async {
+    
+    final prefs = await SharedPreferences.getInstance();
+    prefs.remove("nome");
+    print("Operação (remover)"); 
 
   }
 
@@ -26,7 +48,7 @@ class _HomeState extends State<Home> {
         padding: EdgeInsets.all(32),
         child: Column(
           children: <Widget>[
-            Text("Nada Salvo"),
+            Text(_textoSalvo),
             TextField(
               keyboardType: TextInputType.text,
               decoration: InputDecoration(
@@ -47,6 +69,12 @@ class _HomeState extends State<Home> {
                   child: Text("Recuperar", style: TextStyle(fontSize: 20)),
                   textColor: Colors.white,
                   onPressed: _recuperarDados,
+                ),
+                RaisedButton(
+                  color: Colors.blue,
+                  child: Text("Remover", style: TextStyle(fontSize: 20)),
+                  textColor: Colors.white,
+                  onPressed: _remover,
                 )
               ],
             )
